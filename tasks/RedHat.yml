@@ -1,0 +1,15 @@
+---
+- name: download repo information
+  get_url: url=http://pkg.jenkins-ci.org/redhat/jenkins.repo dest=/etc/yum.repos.d/jenkins.repo
+
+- name: import repo key
+  rpm_key: key=http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+
+- name: install Jenkins
+  yum: name=jenkins state=present
+
+- name: put Jenkins config
+  template: src=sysconfig-jenkins dest=/etc/sysconfig/jenkins mode=0600 backup=yes
+
+- name: enable and start Jenkins service
+  service: name=jenkins state=started enabled=yes
