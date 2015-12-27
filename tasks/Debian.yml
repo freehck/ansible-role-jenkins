@@ -5,6 +5,9 @@
 - name: add Jenkins repo
   apt_repository: repo='deb http://pkg.jenkins-ci.org/debian binary/' state=present update_cache=yes
 
+- name: install git
+  apt: name=git state=present
+
 - name: install Jenkins
   apt: name=jenkins state=present
 
