@@ -13,3 +13,14 @@
 
 - name: enable and start Jenkins service
   service: name=jenkins state=started enabled=yes
+
+- name: install pip
+  apt: name=python-pip state=present
+
+- name: install jenkins-job-builder
+  become: True
+  become_user: jenkins
+  pip: name=jenkins-job-builder state=present
+
+- name: install workflow-aggregator plugin
+  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin workflow-aggregator --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
