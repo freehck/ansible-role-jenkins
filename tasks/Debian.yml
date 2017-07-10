@@ -9,7 +9,7 @@
   apt: name=git state=present
 
 - name: install Jenkins
-  apt: name=jenkins state=present
+  apt: name=jenkins state=latest
 
 - name: enable and start Jenkins service
   service: name=jenkins state=started enabled=yes
@@ -17,10 +17,26 @@
 - name: install pip
   apt: name=python-pip state=present
 
-- name: install jenkins-job-builder
+- name: checkout jenkins-job-builder
   become: True
   become_user: jenkins
-  pip: name=jenkins-job-builder state=present
+  git: repo=https://git.openstack.org/openstack-infra/jenkins-job-builder dest=/var/lib/jenkins/jenkins-job-builder
+
+- name: install jenkins-job-builder
+  pip: requirements=/var/lib/jenkins/jenkins-job-builder/requirements.txt
 
 - name: install workflow-aggregator plugin
   shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin workflow-aggregator --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
+
+- name: install git plugin
+  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin git --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
+
+- name: get password
+  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: password
+
+- name: create ~/.config/jenkins_jobs/
+  file: state=directory dest=/var/lib/jenkins/.config/jenkins_jobs owner=jenkins group=jenkins
+
+- name: put a jenkins job builder config file
+  template: src=jenkins_jobs.ini dest=/var/lib/jenkins/.config/jenkins_jobs/jenkins_jobs.ini
