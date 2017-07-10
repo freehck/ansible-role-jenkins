@@ -24,7 +24,17 @@
   yum: name=libyaml-devel state=present
 
 - name: install jenkins-job-builder
-  pip: name=jenkins-job-builder state=present
+  pip: name=git+https://git.openstack.org/openstack-infra/jenkins-job-builder#egg=jenkins_job_builder state=present
 
 - name: install workflow-aggregator plugin
   shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin workflow-aggregator --username admin --password `cat {{ jenkins_home }}/secrets/initialAdminPassword`
+
+- name: get password
+  shell: cat {{ jenkins_home }}/secrets/initialAdminPassword
+  register: password
+
+- name: create /etc/jenkins_jobs/
+  file: state=directory dest=/etc/jenkins_jobs owner=jenkins group=jenkins
+
+- name: put a jenkins job builder config file
+  template: src=jenkins_jobs.ini dest=/etc/jenkins_jobs/jenkins_jobs.ini
