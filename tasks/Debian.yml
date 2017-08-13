@@ -17,13 +17,8 @@
 - name: install pip
   apt: name=python-pip state=present
 
-- name: checkout jenkins-job-builder
-  become: True
-  become_user: jenkins
-  git: repo=https://git.openstack.org/openstack-infra/jenkins-job-builder dest=/var/lib/jenkins/jenkins-job-builder
-
 - name: install jenkins-job-builder
-  pip: requirements=/var/lib/jenkins/jenkins-job-builder/requirements.txt
+  pip: name=git+https://git.openstack.org/openstack-infra/jenkins-job-builder#egg=jenkins_job_builder state=present
 
 - name: install workflow-aggregator plugin
   shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin workflow-aggregator --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
