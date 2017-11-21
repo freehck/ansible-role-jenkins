@@ -11,6 +11,9 @@
 - name: install Jenkins
   apt: name=jenkins state=latest
 
+- name: put Jenkins config
+  template: src=debian-jenkins dest=/etc/default/jenkins mode=0600 backup=yes
+
 - name: enable and start Jenkins service
   service: name=jenkins state=started enabled=yes
 
@@ -21,10 +24,10 @@
   pip: name=git+https://git.openstack.org/openstack-infra/jenkins-job-builder#egg=jenkins_job_builder state=present
 
 - name: install workflow-aggregator plugin
-  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin workflow-aggregator --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
+  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin workflow-aggregator --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
 
 - name: install git plugin
-  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin git --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
+  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin git --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
 
 - name: get password
   shell: cat /var/lib/jenkins/secrets/initialAdminPassword
