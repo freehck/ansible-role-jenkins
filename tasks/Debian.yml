@@ -24,17 +24,17 @@
   pip: name=git+https://git.openstack.org/openstack-infra/jenkins-job-builder#egg=jenkins_job_builder state=present
 
 - name: install workflow-aggregator plugin
-  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin workflow-aggregator --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
+  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -ssh -user admin -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin workflow-aggregator
 
 - name: install git plugin
-  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin git --username admin --password `cat /var/lib/jenkins/secrets/initialAdminPassword`
+  shell: java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -ssh -user admin -s http://127.0.0.1:{{ jenkins_port }}/ install-plugin git
+
+- name: create ~/.config/jenkins_jobs/
+  file: state=directory dest=/var/lib/jenkins/.config/jenkins_jobs owner=jenkins group=jenkins
 
 - name: get password
   shell: cat /var/lib/jenkins/secrets/initialAdminPassword
   register: password
-
-- name: create ~/.config/jenkins_jobs/
-  file: state=directory dest=/var/lib/jenkins/.config/jenkins_jobs owner=jenkins group=jenkins
 
 - name: put a jenkins job builder config file
   template: src=jenkins_jobs.ini dest=/var/lib/jenkins/.config/jenkins_jobs/jenkins_jobs.ini
